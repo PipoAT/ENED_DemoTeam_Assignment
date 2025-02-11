@@ -13,6 +13,8 @@
                 body: JSON.stringify({team: team})
             });
 
+            startTimer(team, 120); // Start 2-minute timer
+            updateTimerDisplay(team);
             location.reload();
         }
 
@@ -33,6 +35,7 @@
                 body: JSON.stringify({team: teamName})
             });
 
+            localStorage.removeItem(`timer-${teamName}`);
             location.reload();
         }
 
@@ -44,8 +47,6 @@
                     updateQueue(data.team_queue);
                     updateActiveStatus(data.active_status);
                 });
-
-            location.reload();
         }
 
         function updateAssignments(stations) {
@@ -60,12 +61,10 @@
                         <button class="btn btn-danger btn-sm" onclick="removeTeam('${team}')">Remove</button>
                         <span id="timer-${team}" class="badge bg-primary rounded-pill"></span>`;
                     assignmentsList.appendChild(li);
-                    startTimer(team, 60); // Start 1 minute timer
+                    startTimer(team, 120); // Start 2-minute timer
                     updateTimerDisplay(team);
                 }
             }
-
-            location.reload();
         }
 
         function updateQueue(queue) {
@@ -77,8 +76,6 @@
                 li.innerText = `Team ${team}`;
                 queueList.appendChild(li);
             });
-
-            location.reload();
         }
 
         function updateActiveStatus(active_status) {
@@ -94,8 +91,6 @@
                     }
                 }
             }
-
-            location.reload();
         }
 
         function startTimer(team, duration) {
@@ -111,21 +106,23 @@
             const endTime = localStorage.getItem(`timer-${team}`);
             if (!endTime) return;
 
-            const interval = setInterval(() => {
+            function updateTime() {
                 const remainingTime = Math.max(0, endTime - Date.now());
                 const seconds = Math.floor(remainingTime / 1000);
                 timerElement.innerText = `${seconds}s`;
 
                 if (remainingTime <= 0) {
-                    clearInterval(interval);
                     removeTeam(team);
+                    clearInterval(timerInterval);
                 }
-            }, 1000);
+            }
+
+            updateTime(); // Update immediately
+            const timerInterval = setInterval(updateTime, 1000);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const teams = document.querySelectorAll('[id^="timer-"]');
-            teams.forEach(teamElement => {
+            document.querySelectorAll('[id^="timer-"]').forEach(teamElement => {
                 const team = teamElement.id.replace('timer-', '');
                 updateTimerDisplay(team);
             });
