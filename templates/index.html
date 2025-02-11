@@ -7,15 +7,19 @@
         async function assignTeam() {
             let team = document.getElementById('team_name').value.trim();
             if (!team) return;
-            await fetch('/assign', {
+
+            let response = await fetch('/assign', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
 
-         //   startTimer(team, 120); // Start 2-minute timer
-            updateTimerDisplay(team);
-            location.reload();
+            let data = await response.json();
+            if (data.assigned_station) {
+                startTimer(data.team, 120); // Start timer ONLY when assigned to a station
+            }
+
+            updateData();
         }
 
         async function toggleActive(station) {
@@ -25,18 +29,18 @@
                 body: JSON.stringify({station: station})
             });
 
-            location.reload();
+            updateData();
         }
 
-        async function removeTeam(teamName) {
+        async function removeTeam(team) {
             await fetch('/remove', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({team: teamName})
+                body: JSON.stringify({team: team})
             });
 
-            localStorage.removeItem(`timer-${teamName}`);
-            location.reload();
+            localStorage.removeItem(`timer-${team}`);
+            updateData();
         }
 
         function updateData() {
@@ -61,7 +65,10 @@
                         <button class="btn btn-danger btn-sm" onclick="removeTeam('${team}')">Remove</button>
                         <span id="timer-${team}" class="badge bg-primary rounded-pill"></span>`;
                     assignmentsList.appendChild(li);
-                    startTimer(team, 120); // Start 2-minute timer
+
+                    if (!localStorage.getItem(`timer-${team}`)) {
+                        startTimer(team, 120); // Start timer only if not already running
+                    }
                     updateTimerDisplay(team);
                 }
             }
@@ -103,17 +110,17 @@
             const timerElement = document.getElementById(`timer-${team}`);
             if (!timerElement) return;
 
-            const endTime = localStorage.getItem(`timer-${team}`);
-            if (!endTime) return;
-
             function updateTime() {
+                const endTime = localStorage.getItem(`timer-${team}`);
+                if (!endTime) return;
+
                 const remainingTime = Math.max(0, endTime - Date.now());
                 const seconds = Math.floor(remainingTime / 1000);
                 timerElement.innerText = `${seconds}s`;
 
                 if (remainingTime <= 0) {
-                    removeTeam(team);
                     clearInterval(timerInterval);
+                    removeTeam(team);
                 }
             }
 
