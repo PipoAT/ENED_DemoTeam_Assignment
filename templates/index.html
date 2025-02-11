@@ -12,6 +12,9 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
+
+            location.reload();
+
         }
 
         async function toggleActive(station) {
@@ -20,6 +23,9 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({station: station})
             });
+
+            location.reload();
+
         }
 
         async function removeTeam(teamName) {
@@ -28,6 +34,9 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: teamName})
             });
+
+            location.reload();
+
         }
 
         function updateData() {
@@ -38,6 +47,9 @@
                     updateQueue(data.team_queue);
                     updateActiveStatus(data.active_status);
                 });
+
+            location.reload();
+
         }
 
         function updateAssignments(stations) {
@@ -53,6 +65,9 @@
                     assignmentsList.appendChild(li);
                 }
             }
+
+            location.reload();
+
         }
 
         function updateQueue(queue) {
@@ -64,6 +79,9 @@
                 li.innerText = `Team ${team}`;
                 queueList.appendChild(li);
             });
+
+            location.reload();
+
         }
 
         function updateActiveStatus(active_status) {
@@ -79,9 +97,11 @@
                     }
                 }
             }
+
+            location.reload();
+
         }
 
-        setInterval(updateData, 2000); // Refresh every 2 seconds
     </script>
 </head>
 <body class="bg-light">
