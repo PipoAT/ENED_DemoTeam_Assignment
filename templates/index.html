@@ -14,10 +14,10 @@
                 body: JSON.stringify({team: team})
             });
 
-            let data = await response.json();
-            if (data.assigned_station) {
-                startTimer(data.team, 120); // Start timer ONLY when assigned to a station
-            }
+     //       let data = await response.json();
+            // if (data.assigned_station) {
+            //     startTimer(data.team, 120); // Start timer ONLY when assigned to a station
+            // }
 
             updateData();
         }
@@ -66,10 +66,10 @@
                         <span id="timer-${team}" class="badge bg-primary rounded-pill"></span>`;
                     assignmentsList.appendChild(li);
 
-                    if (!localStorage.getItem(`timer-${team}`)) {
-                        startTimer(team, 120); // Start timer only if not already running
-                    }
-                    updateTimerDisplay(team);
+                    // if (!localStorage.getItem(`timer-${team}`)) {
+                    //     startTimer(team, 120); // Start timer only if not already running
+                    // }
+                    // updateTimerDisplay(team);
                 }
             }
         }
@@ -128,12 +128,12 @@
             const timerInterval = setInterval(updateTime, 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('[id^="timer-"]').forEach(teamElement => {
-                const team = teamElement.id.replace('timer-', '');
-                updateTimerDisplay(team);
-            });
-        });
+        // document.addEventListener('DOMContentLoaded', () => {
+        //     document.querySelectorAll('[id^="timer-"]').forEach(teamElement => {
+        //         const team = teamElement.id.replace('timer-', '');
+        //         updateTimerDisplay(team);
+        //     });
+        // });
     </script>
 </head>
 <body class="bg-light">
