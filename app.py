@@ -83,7 +83,8 @@ def assignments():
 @app.route('/get_assignments')
 def get_assignments():
     """Return the latest station assignments as JSON."""
-    return jsonify({'stations': stations, 'active_status': active_status})
+    return jsonify({'stations': stations, 'active_status': active_status, 'team_queue': team_queue})
+
 
 def assign_next_team():
     """Assign the next team from the queue if a station is available."""
