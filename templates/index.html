@@ -42,7 +42,7 @@
 
         function updateAssignments(stations) {
             let assignmentsList = document.getElementById("assignments");
-            assignmentsList.innerHTML = ""; // Clear old data
+            assignmentsList.innerHTML = "";
             for (let station in stations) {
                 let team = stations[station];
                 if (team) {
@@ -57,13 +57,28 @@
 
         function updateQueue(queue) {
             let queueList = document.getElementById("team_queue");
-            queueList.innerHTML = ""; // Clear old data
+            queueList.innerHTML = "";
             queue.forEach(team => {
                 let li = document.createElement("li");
                 li.className = "list-group-item fs-5";
                 li.innerText = `Team ${team}`;
                 queueList.appendChild(li);
             });
+        }
+
+        function updateActiveStatus(active_status) {
+            for (let station in active_status) {
+                let button = document.getElementById(`station-${station}`);
+                if (button) {
+                    if (active_status[station]) {
+                        button.className = "list-group-item list-group-item-action list-group-item-success";
+                        button.innerText = `Station ${station} - Active`;
+                    } else {
+                        button.className = "list-group-item list-group-item-action list-group-item-secondary";
+                        button.innerText = `Station ${station} - Inactive`;
+                    }
+                }
+            }
         }
 
         setInterval(updateData, 2000); // Refresh every 2 seconds
@@ -82,7 +97,8 @@
                 <h2 class="fs-4">Toggle Station Status</h2>
                 <div class="list-group">
                     {% for station in range(1, 9) %}
-                    <button class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
+                    <button id="station-{{ station }}" 
+                            class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
                             onclick="toggleActive({{ station }})">
                         Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
                     </button>
