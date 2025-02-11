@@ -1,155 +1,176 @@
 
 # Team Station Assignment Application
 
-This is a Flask-based web application designed to manage team assignments to stations in real-time. It supports assigning teams to active stations, removing teams, and maintaining a queue for teams waiting for an available station.
+This web application allows the dynamic assignment of teams to stations, managing a queue for teams waiting for available stations, and providing real-time updates for both team assignments and the queue.
 
 ## Features
-
-- **Assign teams** to the highest available active station.
-- **Automatic timer** to remove teams after 5 minutes unless manually removed.
-- **Queue management** for teams waiting for station assignment.
-- **Toggle station status** between active and inactive.
-- **Real-time updates** on current team assignments.
+- **Assign Teams to Stations**: Teams can be assigned to the highest available active station.
+- **Queue Management**: Teams can be added to the queue when no stations are available.
+- **Auto-remove**: Teams are automatically removed from stations after 5 minutes unless manually removed.
+- **Real-time Updates**: The current team assignments and queue are updated in real-time every 5 seconds without requiring a page refresh.
 
 ## Requirements
+To run this application, you need the following:
+- Python 3.7 or higher
+- Flask
+- Additional Python libraries (`threading`, `time`)
 
-Before running the application locally or deploying it to a platform like Vercel, ensure you have the following:
+## Installation and Setup
 
-### Prerequisites
+### Step 1: Clone the repository
+Clone the repository to your local machine using Git:
+```bash
+git clone https://github.com/yourusername/team-station-assignment.git
+cd team-station-assignment
+```
 
-- **Python 3.7+**: You need to have Python installed on your system.
-- **Pip**: Python's package installer to manage dependencies.
+### Step 2: Install dependencies
+It’s recommended to use a virtual environment to avoid conflicts with other projects.
 
-### Local Setup Instructions
-
-1. **Clone the repository**:
-   If you haven't already, clone the repository to your local machine.
-
-   ```bash
-   git clone https://github.com/yourusername/team-station-assignment.git
-   cd team-station-assignment
-   ```
-
-2. **Create a virtual environment** (optional but recommended):
-   
-   For macOS/Linux:
+1. **Create a virtual environment**:
    ```bash
    python3 -m venv venv
-   source venv/bin/activate
    ```
 
-   For Windows:
+2. **Activate the virtual environment**:
+   - On **Windows**:
+     ```bash
+     venv\Scripts\activate
+     ```
+   - On **Mac/Linux**:
+     ```bash
+     source venv/bin/activate
+     ```
+
+3. **Install required dependencies**:
    ```bash
-   python -m venv venv
-   .\venv\Scripts\activate
+   pip install flask
    ```
 
-3. **Install dependencies**:
+### Step 3: Run the Application
+To start the application, run the following command:
+```bash
+python app.py
+```
 
-   Install the required Python packages using `pip`:
+The application will be available at `http://127.0.0.1:5000/` by default.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Step 4: Access the Pages
+- **Main page** (`/`): The home page where you can assign teams to stations and manage station statuses.
+- **Assignments page** (`/assignments`): A separate page displaying the current station assignments and team queue. This page updates in real-time every 5 seconds.
 
-4. **Run the application locally**:
+### Real-time Updates
+The `assignments` page uses **AJAX polling** to fetch the latest team assignments and queue every 5 seconds without requiring a page refresh. This ensures that all users see the most up-to-date data without needing to reload the page manually.
 
-   After installing the dependencies, start the Flask app by running the following command:
+### API Endpoints
 
-   ```bash
-   python app.py
-   ```
+- **`/assign`**: Assign a team to the highest available active station. The team is added to the queue if no stations are available.
+  - **Method**: `POST`
+  - **Body**: JSON with the team name.
+  - **Example Request**:
+    ```json
+    {
+      "team": "Team A"
+    }
+    ```
 
-   The app will run locally at `http://127.0.0.1:5000/`.
+- **`/remove`**: Remove a team from a station or queue.
+  - **Method**: `POST`
+  - **Body**: JSON with the team name.
+  - **Example Request**:
+    ```json
+    {
+      "team": "Team A"
+    }
+    ```
 
-   You can now access the application in your browser.
+- **`/toggle_active`**: Toggle the active status of a station (activate or deactivate).
+  - **Method**: `POST`
+  - **Body**: JSON with the station number.
+  - **Example Request**:
+    ```json
+    {
+      "station": 1
+    }
+    ```
 
-### Vercel Deployment
+- **`/get_assignments`**: Retrieve the current team assignments and the team queue as JSON.
+  - **Method**: `GET`
+  - **Example Response**:
+    ```json
+    {
+      "stations": {
+        "1": "Team A",
+        "2": null,
+        "3": "Team B"
+      },
+      "active_status": {
+        "1": true,
+        "2": false,
+        "3": true
+      },
+      "team_queue": ["Team C", "Team D"]
+    }
+    ```
 
-To deploy this application on **Vercel**:
+## Deployment
 
-1. **Install Vercel CLI**:
+To deploy this app to a cloud platform (e.g., **Vercel**, **Heroku**), follow these steps:
 
-   First, install the Vercel CLI if you don't have it already:
-
+### Vercel
+1. Install Vercel CLI:
    ```bash
    npm install -g vercel
    ```
 
-2. **Login to Vercel**:
-
-   Log in to your Vercel account using the CLI:
-
-   ```bash
-   vercel login
-   ```
-
-3. **Deploy the application**:
-
-   Run the following command in the root directory of your project to deploy:
-
+2. Link your project:
    ```bash
    vercel
    ```
 
-   Follow the prompts to set up your project. After the deployment is complete, you will receive a URL where your app is hosted on Vercel.
+3. Follow the prompts to deploy.
 
-### Configuration
+4. After deployment, the app will be available at the URL provided by Vercel.
 
-This application uses the following configurations:
+### Heroku
+1. Install Heroku CLI:
+   ```bash
+   brew install heroku
+   ```
 
-- **Stations**: 8 stations, each can either be active or inactive.
-- **Timer**: Teams are automatically removed from stations after 5 minutes, unless manually removed or a new team is assigned to the station.
-- **Queue**: If there are no available stations, teams are placed in a queue.
+2. Create a `Procfile` with the following content:
+   ```
+   web: python app.py
+   ```
 
-## How to Use the Application
+3. Log in to Heroku and create a new app:
+   ```bash
+   heroku login
+   heroku create
+   ```
 
-Once you have the application running:
+4. Deploy your app to Heroku:
+   ```bash
+   git push heroku master
+   ```
 
-### Assigning a Team
-
-- Enter a team name in the input box and click **Assign Team**.
-- The team will be assigned to the highest available active station.
-- If no stations are available, the team will be added to the queue.
-
-### Removing a Team
-
-- Teams can be removed manually by clicking the **Remove** button next to a team's assignment.
-- If a team is removed, the next team in the queue will automatically be assigned to the station.
-
-### Toggle Station Status
-
-- Stations can be toggled between **Active** and **Inactive**.
-- If a station becomes active, any waiting teams in the queue will automatically be assigned to that station.
-
-### Current Assignments
-
-- Navigate to the **Assignments** page (`/assignments`) to view the current team assignments.
-- The page will show which teams are assigned to which stations and the status of each station.
-
-## File Structure
-
-```plaintext
-team-station-assignment/
-│
-├── app.py                # Main Flask app file with routes and logic
-├── requirements.txt      # List of dependencies for the app
-├── vercel.json           # Vercel configuration for deployment
-├── templates/
-│   ├── index.html        # Main page for assigning teams and toggling stations
-│   ├── assignments.html  # Page for viewing current assignments
-└── static/               # Folder for static files (CSS, JS, etc.)
-```
-
-## Notes
-
-- **Real-time updates**: The app does not use WebSockets, but uses page refreshes to update station assignments and remaining timer times.
-- **Serverless Functionality**: The app is designed to be deployed to Vercel, which uses serverless functions to handle each request.
+5. Open the deployed app:
+   ```bash
+   heroku open
+   ```
 
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Any Questions?
+Andrew T. Pipo
+
+937-631-5036
+
+atpipo2026@gmail.com
+
+pipoat@mail.uc.edu
 
 ---
 
-Feel free to contribute to this project by opening issues or submitting pull requests. If you have any questions, feel free to open an issue in the repository!
+This README provides all necessary information to run, test, and deploy the application. For any issues or contributions, feel free to submit an issue or pull request.
