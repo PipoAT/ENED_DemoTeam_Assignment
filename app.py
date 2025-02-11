@@ -79,6 +79,11 @@ def assignments():
     """Render the assignments page."""
     return render_template('assignments.html', team_queue=team_queue, stations=stations)
 
+@app.route('/station')
+def station():
+    """Render the station page."""
+    return render_template('station.html', team_queue=team_queue, stations=stations)
+
 
 @app.route('/get_assignments')
 def get_assignments():
