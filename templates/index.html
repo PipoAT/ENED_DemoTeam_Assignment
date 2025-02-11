@@ -95,6 +95,15 @@
                     {% endif %}
                     {% endfor %}
                 </ul>
+
+                <h2 class="fs-4 mt-4">Teams in Queue</h2>
+                <ul class="list-group">
+                    {% for team in queue %}
+                    <li class="list-group-item fs-5">
+                        Team {{ team }}
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
