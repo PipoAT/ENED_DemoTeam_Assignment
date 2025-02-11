@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import threading
 import time
 
 app = Flask(__name__)
@@ -9,29 +8,10 @@ active_status = {i: False for i in range(1, 9)}
 team_queue = []
 timer_start = {}
 
-def auto_remove_team(station, team_name):
-    """Removes a team after 5 minutes unless manually removed."""
-    time.sleep(300)
-    if stations.get(station) == team_name:
-        stations[station] = None
-        timer_start.pop(station, None)
-        assign_next_team()
-
-def assign_next_team():
-    """Assign the next team from the queue if a station is available."""
-    if team_queue:
-        available_stations = [s for s in sorted(active_status.keys(), reverse=True)
-                              if active_status[s] and stations[s] is None]
-        if available_stations:
-            station = available_stations[0]
-            team_name = team_queue.pop(0)
-            stations[station] = team_name
-            timer_start[station] = time.time()
-            threading.Thread(target=auto_remove_team, args=(station, team_name)).start()
-
 @app.route('/')
 def index():
     current_time = time.time()
+    # Calculate remaining time for each station
     remaining_times = {s: max(300 - int(current_time - t), 0) if t else None for s, t in timer_start.items()}
     return render_template('index.html', stations=stations, active_status=active_status, team_queue=team_queue, remaining_times=remaining_times)
 
@@ -39,18 +19,20 @@ def index():
 def assign_team():
     data = request.json
     team_name = data.get('team')
+
+    # Check if team is already assigned or in queue
     if team_name in stations.values() or team_name in team_queue:
         return jsonify({'success': False})
 
-    available_stations = [s for s in sorted(active_status.keys(), reverse=True)
-                          if active_status[s] and stations[s] is None]
+    # Assign the team to the highest active station
+    available_stations = [s for s in sorted(active_status.keys(), reverse=True) if active_status[s] and stations[s] is None]
     if available_stations:
         station = available_stations[0]
         stations[station] = team_name
         timer_start[station] = time.time()
-        threading.Thread(target=auto_remove_team, args=(station, team_name)).start()
     else:
         team_queue.append(team_name)
+
     return jsonify({'success': True})
 
 @app.route('/remove', methods=['POST'])
@@ -58,6 +40,7 @@ def remove_team():
     data = request.json
     team_name = data.get('team')
 
+    # Remove team from a station if assigned
     for station, team in stations.items():
         if team == team_name:
             stations[station] = None
@@ -65,6 +48,7 @@ def remove_team():
             assign_next_team()
             return jsonify({'success': True})
 
+    # If team is in queue, remove from queue
     if team_name in team_queue:
         team_queue.remove(team_name)
         return jsonify({'success': True})
@@ -99,6 +83,16 @@ def assignments():
 def get_assignments():
     """Return the latest station assignments as JSON."""
     return jsonify({'stations': stations, 'active_status': active_status})
+
+def assign_next_team():
+    """Assign the next team from the queue if a station is available."""
+    if team_queue:
+        available_stations = [s for s in sorted(active_status.keys(), reverse=True) if active_status[s] and stations[s] is None]
+        if available_stations:
+            station = available_stations[0]
+            team_name = team_queue.pop(0)
+            stations[station] = team_name
+            timer_start[station] = time.time()
 
 if __name__ == '__main__':
     app.run(debug=True)
