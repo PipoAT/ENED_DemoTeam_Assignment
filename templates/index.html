@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Team Station Assignment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script>
+        async function assignTeam() {
+            let team = document.getElementById('team_name').value.trim();
+            if (!team) return;
+            await fetch('/assign', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({team: team})
+            });
+            location.reload();
+        }
+
+        async function toggleActive(station) {
+            await fetch('/toggle_active', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({station: station})
+            });
+            location.reload();
+        }
+
+        async function removeTeam(teamName) {
+            await fetch('/remove', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({team: teamName})
+            });
+            location.reload();
+        }
+
+        function startCountdown(timeLeft, station, team) {
+            let timerElement = document.getElementById(`timer-${station}`);
+            if (!timerElement) return;
+
+            function updateTimer() {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    removeTeam(team);
+                }
+            }
+            updateTimer();
+        }
+
+        window.onload = function () {
+            {% for station, team in stations.items() %}
+                {% if team and remaining_times[station] is not none %}
+                    startCountdown({{ remaining_times[station] }}, "{{ station }}", "{{ team }}");
+                {% endif %}
+            {% endfor %}
+        };
+    </script>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="mb-4">Team Station Assignment</h1>
+                <div class="mb-3">
+                    <input type="text" id="team_name" class="form-control" placeholder="Enter team name">
+                </div>
+                <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
+
+                <h2 class="fs-4">Toggle Station Status</h2>
+                <div class="list-group">
+                    {% for station in range(1, 9) %}
+                    <button class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
+                            onclick="toggleActive({{ station }})">
+                        Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h2 class="fs-4">Current Assignments</h2>
+                <ul class="list-group">
+                    {% for station, team in stations.items() %}
+                    {% if team %}
+                    <li class="list-group-item fs-5 d-flex justify-content-between align-items-center">
+                        Team {{ team }} is assigned to Station {{ station }}
+                        <span id="timer-{{ station }}" class="badge bg-warning text-dark">5:00</span>
+                        <button class="btn btn-danger btn-sm" onclick="removeTeam('{{ team }}')">Remove</button>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
