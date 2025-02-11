@@ -12,7 +12,6 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
-            location.reload();
         }
 
         async function toggleActive(station) {
@@ -21,7 +20,6 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({station: station})
             });
-            location.reload();
         }
 
         async function removeTeam(teamName) {
@@ -30,35 +28,44 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: teamName})
             });
-            location.reload();
         }
 
-        function startCountdown(timeLeft, station, team) {
-            let timerElement = document.getElementById(`timer-${station}`);
-            if (!timerElement) return;
+        function updateData() {
+            fetch('/get_assignments')
+                .then(response => response.json())
+                .then(data => {
+                    updateAssignments(data.stations);
+                    updateQueue(data.team_queue);
+                });
+        }
 
-            function updateTimer() {
-                let minutes = Math.floor(timeLeft / 60);
-                let seconds = timeLeft % 60;
-                timerElement.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    setTimeout(updateTimer, 1000);
-                } else {
-                    removeTeam(team);
+        function updateAssignments(stations) {
+            let assignmentsList = document.getElementById("assignments");
+            assignmentsList.innerHTML = ""; // Clear old data
+            for (let station in stations) {
+                let team = stations[station];
+                if (team) {
+                    let li = document.createElement("li");
+                    li.className = "list-group-item fs-5 d-flex justify-content-between align-items-center";
+                    li.innerHTML = `Team ${team} is assigned to Station ${station} 
+                        <button class="btn btn-danger btn-sm" onclick="removeTeam('${team}')">Remove</button>`;
+                    assignmentsList.appendChild(li);
                 }
             }
-            updateTimer();
         }
 
-        window.onload = function () {
-            {% for station, team in stations.items() %}
-                {% if team and remaining_times[station] is not none %}
-                    startCountdown({{ remaining_times[station] }}, "{{ station }}", "{{ team }}");
-                {% endif %}
-            {% endfor %}
-        };
+        function updateQueue(queue) {
+            let queueList = document.getElementById("team_queue");
+            queueList.innerHTML = ""; // Clear old data
+            queue.forEach(team => {
+                let li = document.createElement("li");
+                li.className = "list-group-item fs-5";
+                li.innerText = `Team ${team}`;
+                queueList.appendChild(li);
+            });
+        }
+
+        setInterval(updateData, 2000); // Refresh every 2 seconds
     </script>
 </head>
 <body class="bg-light">
@@ -84,12 +91,11 @@
 
             <div class="col-md-6">
                 <h2 class="fs-4">Current Assignments</h2>
-                <ul class="list-group">
+                <ul id="assignments" class="list-group">
                     {% for station, team in stations.items() %}
                     {% if team %}
                     <li class="list-group-item fs-5 d-flex justify-content-between align-items-center">
                         Team {{ team }} is assigned to Station {{ station }}
-                        <span id="timer-{{ station }}" class="badge bg-warning text-dark">5:00</span>
                         <button class="btn btn-danger btn-sm" onclick="removeTeam('{{ team }}')">Remove</button>
                     </li>
                     {% endif %}
@@ -97,14 +103,13 @@
                 </ul>
 
                 <h2 class="fs-4 mt-4">Teams in Queue</h2>
-                <ul class="list-group">
+                <ul id="team_queue" class="list-group">
                     {% for team in team_queue %}
                     <li class="list-group-item fs-5">
                         Team {{ team }}
                     </li>
                     {% endfor %}
                 </ul>
-
             </div>
         </div>
     </div>
