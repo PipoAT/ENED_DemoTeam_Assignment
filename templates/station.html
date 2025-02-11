@@ -31,16 +31,27 @@
             });
         }
 
+
         async function removeTeam(team) {
+            // Send the remove request to the server
             await fetch('/remove', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
 
-            // Refresh assignments after removal
-            fetchAssignments();
+            // Now trigger a refresh on index.html or reload the data here
+            fetchAssignments(); // Fetch updated data in station.html itself
+            notifyIndexPage();  // Notify index.html to update (or refresh the data)
         }
+
+        // Function to notify index.html to refresh its data
+        function notifyIndexPage() {
+            if (window.opener) {
+                window.opener.fetchAssignments(); // Calls fetchAssignments in the parent window (index.html)
+            }
+        }
+
 
         // Poll for updates every 5 seconds
         setInterval(fetchAssignments, 5000);
