@@ -31,15 +31,6 @@
             });
         }
 
-        // Function to notify index.html to refresh its data
-        function notifyIndexPage() {
-            if (window.opener) {
-                window.opener.fetchAssignments(); // Calls fetchAssignments in the parent window (index.html)
-                window.opener.location.reload();  // Reload the parent window
-            }
-        }
-
-
         async function removeTeam(team) {
             // Send the remove request to the server
             await fetch('/remove', {
@@ -50,11 +41,10 @@
 
             // Now trigger a refresh on index.html or reload the data here
             fetchAssignments(); // Fetch updated data in station.html itself
-            notifyIndexPage();  // Notify index.html to update (or refresh the data)
+
+            // Notify index.html to update
+            localStorage.setItem('refreshIndex', Date.now());
         }
-
-        
-
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
