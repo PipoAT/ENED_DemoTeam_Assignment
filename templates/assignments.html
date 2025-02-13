@@ -14,7 +14,7 @@
 
             for (let [station, team] of Object.entries(result.stations)) {
                 if (team) {
-                    stationsList.innerHTML += `<li class="list-group-item">Team ${team} is assigned to Station ${station}</li>`;
+                    stationsList.innerHTML += `<li class="list-group-item" style="font-size: 1.75em;">Team ${team} is assigned to Station ${station}</li>`;
                 }
             }
 
@@ -23,7 +23,7 @@
             queueList.innerHTML = '';  // Clear current queue
 
             result.team_queue.forEach(team => {
-                queueList.innerHTML += `<li class="list-group-item">Team ${team} is in the queue</li>`;
+                queueList.innerHTML += `<li class="list-group-item" style="font-size: 1.75em;"">Team ${team} is in the queue</li>`;
             });
         }
 
@@ -36,6 +36,12 @@
 </head>
 <body class="bg-light">
     <div class="container py-5">
+        <h1>Welcome ENED1120 Students!</h1>
+        <br>
+        <h2>Please see the below information for your station assignments and queue.</h2>
+        <h2>When you see your team assigned to a station, proceed to that station.</h2>
+        <br>
+        <hr>
         <div class="row">
             <div class="col-md-6">
                 <h1 class="mb-4">Current Station Assignments</h1>
