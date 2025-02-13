@@ -100,14 +100,29 @@
                 <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
 
                 <h2 class="fs-4">Toggle Station Status</h2>
-                <div class="list-group">
-                    {% for station in range(1, 9) %}
-                    <button id="station-{{ station }}" 
-                            class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
-                            onclick="toggleActive({{ station }})">
-                        Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
-                    </button>
-                    {% endfor %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="list-group">
+                            {% for station in range(1, 7) %}
+                            <button id="station-{{ station }}" 
+                                    class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
+                                    onclick="toggleActive({{ station }})">
+                                Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="list-group">
+                            {% for station in range(7, 13) %}
+                            <button id="station-{{ station }}" 
+                                    class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
+                                    onclick="toggleActive({{ station }})">
+                                Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
 
