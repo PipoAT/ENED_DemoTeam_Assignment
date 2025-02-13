@@ -3,8 +3,8 @@ import time
 
 app = Flask(__name__)
 
-stations = {i: None for i in range(1, 9)}
-active_status = {i: False for i in range(1, 9)}
+stations = {i: None for i in range(1, 13)}
+active_status = {i: False for i in range(1, 13)}
 team_queue = []
 timer_start = {}
 
@@ -78,6 +78,11 @@ def toggle_active():
 def assignments():
     """Render the assignments page."""
     return render_template('assignments.html', team_queue=team_queue, stations=stations)
+
+@app.route('/station')
+def station():
+    """Render the station page."""
+    return render_template('station.html', team_queue=team_queue, stations=stations)
 
 
 @app.route('/get_assignments')
