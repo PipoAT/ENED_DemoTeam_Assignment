@@ -49,6 +49,7 @@
         function notifyIndexPage() {
             if (window.opener) {
                 window.opener.fetchAssignments(); // Calls fetchAssignments in the parent window (index.html)
+                window.opener.reload();  // Reload the parent window
             }
         }
 
