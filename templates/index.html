@@ -11,23 +11,19 @@
             updateAssignments(data.stations);
             updateQueue(data.team_queue);
             updateActiveStatus(data.active_status);
-
-            location.reload();
         }
 
         async function assignTeam() {
             let team = document.getElementById('team_name').value.trim();
             if (!team) return;
 
-            let response = await fetch('/assign', {
+            await fetch('/assign', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
 
             updateData();
-
-            
         }
 
         async function removeTeam(team) {
@@ -38,8 +34,6 @@
             });
 
             updateData();
-
-            location.reload();
         }
 
         function updateData() {
@@ -60,7 +54,6 @@
                     assignmentsList.appendChild(li);
                 }
             }
-
         }
 
         function updateQueue(queue) {
@@ -72,7 +65,6 @@
                 li.innerText = `Team ${team}`;
                 queueList.appendChild(li);
             });
-
         }
 
         async function toggle_active(station) {
@@ -83,8 +75,6 @@
             });
 
             updateData();
-
-            location.reload();
         }
 
         function updateActiveStatus(active_status) {
@@ -100,7 +90,6 @@
                     }
                 }
             }
-
         }
 
         // Poll for updates every 5 seconds
