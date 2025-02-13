@@ -24,6 +24,8 @@
             });
 
             updateData();
+
+            location.reload();
         }
 
         async function removeTeam(team) {
@@ -34,6 +36,8 @@
             });
 
             updateData();
+
+            location.reload();
         }
 
         function updateData() {
@@ -54,6 +58,8 @@
                     assignmentsList.appendChild(li);
                 }
             }
+
+            location.reload();
         }
 
         function updateQueue(queue) {
@@ -65,6 +71,8 @@
                 li.innerText = `Team ${team}`;
                 queueList.appendChild(li);
             });
+
+            location.reload();
         }
 
         async function toggle_active(station) {
@@ -75,6 +83,8 @@
             });
 
             updateData();
+
+            location.reload();
         }
 
         function updateActiveStatus(active_status) {
@@ -90,10 +100,12 @@
                     }
                 }
             }
+
+            location.reload();
         }
 
         // Poll for updates every 5 seconds
-        setInterval(fetchAssignments, 5000);
+        // setInterval(fetchAssignments, 5000);
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
@@ -105,7 +117,7 @@
             <div class="col-md-6">
                 <h1 class="mb-4">Team Station Assignment</h1>
                 <div class="mb-3">
-                    <input type="text" id="team_name" class="form-control" placeholder="Enter team name">
+                    <input type="text" id="team_name" class="form-control" placeholder="Enter team name" maxlength="20">
                 </div>
                 <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
 
