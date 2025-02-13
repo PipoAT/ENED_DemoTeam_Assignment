@@ -31,6 +31,14 @@
             });
         }
 
+        // Function to notify index.html to refresh its data
+        function notifyIndexPage() {
+            if (window.opener) {
+                window.opener.fetchAssignments(); // Calls fetchAssignments in the parent window (index.html)
+                window.opener.location.reload();  // Reload the parent window
+            }
+        }
+
 
         async function removeTeam(team) {
             // Send the remove request to the server
@@ -45,13 +53,7 @@
             notifyIndexPage();  // Notify index.html to update (or refresh the data)
         }
 
-        // Function to notify index.html to refresh its data
-        function notifyIndexPage() {
-            if (window.opener) {
-                window.opener.fetchAssignments(); // Calls fetchAssignments in the parent window (index.html)
-                window.opener.reload();  // Reload the parent window
-            }
-        }
+        
 
 
         // Initial fetch when the page loads
