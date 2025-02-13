@@ -11,6 +11,8 @@
             updateAssignments(data.stations);
             updateQueue(data.team_queue);
             updateActiveStatus(data.active_status);
+
+            location.reload();
         }
 
         async function assignTeam() {
@@ -25,7 +27,7 @@
 
             updateData();
 
-            location.reload();
+            
         }
 
         async function removeTeam(team) {
@@ -59,7 +61,6 @@
                 }
             }
 
-            location.reload();
         }
 
         function updateQueue(queue) {
@@ -72,7 +73,6 @@
                 queueList.appendChild(li);
             });
 
-            location.reload();
         }
 
         async function toggle_active(station) {
@@ -101,7 +101,6 @@
                 }
             }
 
-            location.reload();
         }
 
         // Poll for updates every 5 seconds
