@@ -58,9 +58,10 @@ The application will be available at `http://127.0.0.1:5000/` by default.
 ### Step 4: Access the Pages
 - **Main page** (`/`): The home page where you can assign teams to stations and manage station statuses.
 - **Assignments page** (`/assignments`): A separate page displaying the current station assignments and team queue. This page updates in real-time every 5 seconds.
+- **Station Status page** (`/station`): A page to where each station can access the information about station assignments and team queues, and alert the main page when a team has arrived to the station and a new team is ready to be assigned.
 
 ### Real-time Updates
-The `assignments` page uses **AJAX polling** to fetch the latest team assignments and queue every 5 seconds without requiring a page refresh. This ensures that all users see the most up-to-date data without needing to reload the page manually.
+The `assignments` and `station` pages uses **AJAX polling** to fetch the latest team assignments and queue every 1 seconds without requiring a page refresh. This ensures that all users see the most up-to-date data without needing to reload the page manually.
 
 ### API Endpoints
 
