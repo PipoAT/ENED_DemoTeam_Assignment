@@ -96,7 +96,7 @@
 
         // Poll for updates every 5 seconds
         // setInterval(fetchAssignments, 5000);
-       // setInterval(fetchAssignments, 1000);  // Poll for updates every 5 seconds
+        setInterval(fetchAssignments, 1000);  // Poll for updates every 5 seconds
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
@@ -104,7 +104,7 @@
 </head>
 <body class="bg-light">
     <div class="alert alert-info text-center" role="alert">
-        Welcome to the Team Station Assignment System! Make sure to refresh the page frequently to see the latest updates. DO NOT SPAM THE REFRESH BUTTON AS THAT MAY RESULT IN SOME ISSUES.
+        Welcome to the Team Station Assignment System! Note that this page will automatically update every 1 minute.
     </div>
     <div class="container py-5">
         <div class="row">
