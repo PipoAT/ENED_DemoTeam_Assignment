@@ -4,6 +4,15 @@
     <title>Team Station Assignment</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <script>
+        async function fetchAssignments() {
+            let response = await fetch('/get_assignments');
+            let data = await response.json();
+            
+            updateAssignments(data.stations);
+            updateQueue(data.team_queue);
+            updateActiveStatus(data.active_status);
+        }
+
         async function assignTeam() {
             let section = document.getElementById('section_number').value;
             let teams = Array.from(document.getElementById('team_number').selectedOptions).map(option => option.value);
@@ -36,7 +45,6 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({station: station})
             });
-
             updateData();
         }
 
@@ -47,18 +55,11 @@
                 body: JSON.stringify({team: team})
             });
 
-            localStorage.removeItem(`timer-${team}`);
             updateData();
         }
 
         function updateData() {
-            fetch('/get_assignments')
-                .then(response => response.json())
-                .then(data => {
-                    updateAssignments(data.stations);
-                    updateQueue(data.team_queue);
-                    updateActiveStatus(data.active_status);
-                });
+            fetchAssignments();  // Fetch updated assignments data
         }
 
         function updateAssignments(stations) {
@@ -88,6 +89,16 @@
             });
         }
 
+        async function toggle_active(station) {
+            await fetch('/toggle_active', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({station: station})
+            });
+
+            updateData();
+        }
+
         function updateActiveStatus(active_status) {
             for (let station in active_status) {
                 let button = document.getElementById(`station-${station}`);
@@ -102,6 +113,7 @@
                 }
             }
         }
+        window.onload = fetchAssignments;
     </script>
 </head>
 <body class="bg-light">
@@ -128,38 +140,30 @@
                 <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
 
                 <h2 class="fs-4">Toggle Station Status</h2>
-                <div class="list-group">
-                    {% for station in range(1, 9) %}
-                    <button id="station-{{ station }}" 
-                            class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
-                            onclick="toggleActive({{ station }})">
-                        Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
-                    </button>
-                    {% endfor %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="list-group">
+                            {% for station in range(1, 13) %}
+                            <button type="button" id="station-{{ station }}" 
+                                    class="list-group-item list-group-item-action {% if active_status[station] %}list-group-item-success{% else %}list-group-item-secondary{% endif %}"
+                                    onclick="toggle_active({{ station }})">
+                                Station {{ station }} - {% if active_status[station] %}Active{% else %}Inactive{% endif %}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <h2 class="fs-4">Current Assignments</h2>
                 <ul id="assignments" class="list-group">
-                    {% for station, team in stations.items() %}
-                    {% if team %}
-                    <li class="list-group-item fs-5 d-flex justify-content-between align-items-center">
-                        Team {{ team }} is assigned to Station {{ station }}
-                        <button class="btn btn-danger btn-sm" onclick="removeTeam('{{ team }}')">Remove</button>
-                        <span id="timer-{{ team }}" class="badge bg-primary rounded-pill"></span>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
+                    <!-- Assigned teams will be dynamically inserted here -->
                 </ul>
 
                 <h2 class="fs-4 mt-4">Teams in Queue</h2>
                 <ul id="team_queue" class="list-group">
-                    {% for team in team_queue %}
-                    <li class="list-group-item fs-5">
-                        Team {{ team }}
-                    </li>
-                    {% endfor %}
+                    <!-- Teams in queue will be dynamically inserted here -->
                 </ul>
             </div>
         </div>

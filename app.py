@@ -3,8 +3,8 @@ import time
 
 app = Flask(__name__)
 
-stations = {i: None for i in range(1, 9)}
-active_status = {i: False for i in range(1, 9)}
+stations = {i: None for i in range(1, 13)}
+active_status = {i: False for i in range(1, 13)}
 team_queue = []
 timer_start = {}
 
