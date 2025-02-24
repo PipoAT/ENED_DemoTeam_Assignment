@@ -14,7 +14,11 @@
 
             for (let [station, team] of Object.entries(result.stations)) {
                 if (team) {
-                    stationsList.innerHTML += `<li class="list-group-item" style="font-size: 1.75em;">Team <strong style="color: blue;">${team}</strong> is assigned to Station <strong style="color: red;">${station}</strong></li>`;
+                    stationsList.innerHTML += `
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="font-size: 1.75em;">
+                            Team ${team} is assigned to Station ${station}
+                            <button class="btn btn-danger btn-sm" onclick="removeTeam('${team}')">Remove</button>
+                        </li>`;
                 }
             }
 
@@ -23,12 +27,26 @@
             queueList.innerHTML = '';  // Clear current queue
 
             result.team_queue.forEach(team => {
-                queueList.innerHTML += `<li class="list-group-item" style="font-size: 1.75em;">Team <strong style="color: blue;">${team}</strong> is in the queue</li>`;
+                queueList.innerHTML += `<li class="list-group-item" style="font-size: 1.75em;">Team ${team} is in the queue</li>`;
             });
         }
 
-        // Poll for updates every 5 seconds
-        setInterval(fetchAssignments, 1000);
+        async function removeTeam(team) {
+            // Send the remove request to the server
+            await fetch('/remove', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({team: team})
+            });
+
+            // Now trigger a refresh on index.html or reload the data here
+            fetchAssignments(); // Fetch updated data in station.html itself
+
+            // Notify index.html to update
+            localStorage.setItem('refreshIndex', Date.now());
+        }
+
+        setInterval(fetchAssignments, 1000);  // Poll for updates every 5 seconds
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
@@ -36,12 +54,6 @@
 </head>
 <body class="bg-light">
     <div class="container py-5">
-        <h1>Welcome ENED1120 Students!</h1>
-        <br>
-        <h4>Please see the below information for your station assignments and queue.</h4>
-        <h4>When you see your team assigned to a station, proceed to that station.</h4>
-        <br>
-        <hr>
         <div class="row">
             <div class="col-md-6">
                 <h1 class="mb-4">Current Station Assignments</h1>

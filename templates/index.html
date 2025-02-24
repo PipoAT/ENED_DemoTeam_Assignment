@@ -5,19 +5,27 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <script>
         async function assignTeam() {
-            let team = document.getElementById('team_name').value.trim();
-            if (!team) return;
+            let section = document.getElementById('section_number').value;
+            let teams = Array.from(document.getElementById('team_number').selectedOptions).map(option => option.value);
+            if (!section) {
+            alert('Please select a section number.');
+            return;
+            }
+            if (teams.length === 0) {
+            alert('Please select at least one team.');
+            return;
+            }
 
-            let response = await fetch('/assign', {
+            for (let team of teams) {
+                let teamNumber = team < 10 ? `0${team}` : team;
+                let teamName = `${section}.${teamNumber}`;
+
+            await fetch('/assign', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({team: team})
+                body: JSON.stringify({team: teamName})
             });
-
-     //       let data = await response.json();
-            // if (data.assigned_station) {
-            //     startTimer(data.team, 120); // Start timer ONLY when assigned to a station
-            // }
+            }
 
             updateData();
         }
@@ -65,11 +73,6 @@
                         <button class="btn btn-danger btn-sm" onclick="removeTeam('${team}')">Remove</button>
                         <span id="timer-${team}" class="badge bg-primary rounded-pill"></span>`;
                     assignmentsList.appendChild(li);
-
-                    // if (!localStorage.getItem(`timer-${team}`)) {
-                    //     startTimer(team, 120); // Start timer only if not already running
-                    // }
-                    // updateTimerDisplay(team);
                 }
             }
         }
@@ -99,50 +102,28 @@
                 }
             }
         }
-
-        function startTimer(team, duration) {
-            const endTime = Date.now() + duration * 1000;
-            localStorage.setItem(`timer-${team}`, endTime);
-            updateTimerDisplay(team);
-        }
-
-        function updateTimerDisplay(team) {
-            const timerElement = document.getElementById(`timer-${team}`);
-            if (!timerElement) return;
-
-            function updateTime() {
-                const endTime = localStorage.getItem(`timer-${team}`);
-                if (!endTime) return;
-
-                const remainingTime = Math.max(0, endTime - Date.now());
-                const seconds = Math.floor(remainingTime / 1000);
-                timerElement.innerText = `${seconds}s`;
-
-                if (remainingTime <= 0) {
-                    clearInterval(timerInterval);
-                    removeTeam(team); // Remove ONLY this team when timer is up
-                }
-            }
-
-            updateTime(); // Update immediately
-            const timerInterval = setInterval(updateTime, 1000);
-        }
-
-        // document.addEventListener('DOMContentLoaded', () => {
-        //     document.querySelectorAll('[id^="timer-"]').forEach(teamElement => {
-        //         const team = teamElement.id.replace('timer-', '');
-        //         updateTimerDisplay(team);
-        //     });
-        // });
     </script>
 </head>
 <body class="bg-light">
+    <div class="alert alert-info text-center" role="alert">
+        Welcome to the Beta Version of the Team Station Assignment System! Make sure to refresh the page frequently to see the latest updates. DO NOT SPAM THE REFRESH BUTTON AS THAT MAY RESULT IN SOME ISSUES.
+    </div>
     <div class="container py-5">
         <div class="row">
             <div class="col-md-6">
                 <h1 class="mb-4">Team Station Assignment</h1>
                 <div class="mb-3">
-                    <input type="text" id="team_name" class="form-control" placeholder="Enter team name">
+                    <select id="section_number" class="form-select mb-2">
+                        <option value="" disabled selected>Select section number</option>
+                        {% for section in range(1, 18) %}
+                        <option value="{{ section }}">Section {{ section }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="team_number" class="form-select mb-2" multiple>
+                        {% for team in range(1, 19) %}
+                        <option value="{{ team }}">Team {{ team }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
 
