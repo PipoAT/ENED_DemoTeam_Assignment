@@ -14,17 +14,37 @@
         }
 
         async function assignTeam() {
-            let team = document.getElementById('team_name').value.trim();
-            if (!team) return;
+            let section = document.getElementById('section_number').value;
+            let teams = Array.from(document.getElementById('team_number').selectedOptions).map(option => option.value);
+            if (!section) {
+            alert('Please select a section number.');
+            return;
+            }
+            if (teams.length === 0) {
+            alert('Please select at least one team.');
+            return;
+            }
+
+            for (let team of teams) {
+                let teamNumber = team < 10 ? `0${team}` : team;
+                let teamName = `${section}.${teamNumber}`;
 
             await fetch('/assign', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({team: team})
+                body: JSON.stringify({team: teamName})
             });
+            }
 
-            document.getElementById('team_name').value = "";
+            updateData();
+        }
 
+        async function toggleActive(station) {
+            await fetch('/toggle_active', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({station: station})
+            });
             updateData();
         }
 
@@ -93,25 +113,29 @@
                 }
             }
         }
-
-        // Poll for updates every 5 seconds
-        // setInterval(fetchAssignments, 5000);
-       // setInterval(fetchAssignments, 1000);  // Poll for updates every 5 seconds
-
-        // Initial fetch when the page loads
         window.onload = fetchAssignments;
     </script>
 </head>
 <body class="bg-light">
     <div class="alert alert-info text-center" role="alert">
-        Welcome to the Team Station Assignment System! Make sure to refresh the page frequently to see the latest updates. DO NOT SPAM THE REFRESH BUTTON AS THAT MAY RESULT IN SOME ISSUES.
+        Welcome to the Beta Version of the Team Station Assignment System! Make sure to refresh the page frequently to see the latest updates. DO NOT SPAM THE REFRESH BUTTON AS THAT MAY RESULT IN SOME ISSUES.
     </div>
     <div class="container py-5">
         <div class="row">
             <div class="col-md-6">
                 <h1 class="mb-4">Team Station Assignment</h1>
                 <div class="mb-3">
-                    <input type="text" id="team_name" class="form-control" placeholder="Enter team name" maxlength="20">
+                    <select id="section_number" class="form-select mb-2">
+                        <option value="" disabled selected>Select section number</option>
+                        {% for section in range(1, 18) %}
+                        <option value="{{ section }}">Section {{ section }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="team_number" class="form-select mb-2" multiple>
+                        {% for team in range(1, 19) %}
+                        <option value="{{ team }}">Team {{ team }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <button class="btn btn-primary mb-4" onclick="assignTeam()">Assign Team</button>
 
