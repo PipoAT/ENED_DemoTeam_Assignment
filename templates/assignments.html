@@ -28,7 +28,7 @@
         }
 
         // Poll for updates every 5 seconds
-        setInterval(fetchAssignments, 1000);
+        setInterval(fetchAssignments, 60d000);
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
