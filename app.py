@@ -21,8 +21,8 @@ def load_state():
         try:
             with open(STATE_FILE, 'r') as f:
                 return json.load(f)
-        except:
-            pass
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Error loading state: {e}")
     return {
         'stations': {str(i): None for i in range(1, 13)},
         'active_status': {str(i): False for i in range(1, 13)},
@@ -48,11 +48,8 @@ def update_state(update_func):
         save_state(state)
         return state
 
-# Initialize state
-stations = {i: None for i in range(1, 13)}
-active_status = {i: False for i in range(1, 13)}
-team_queue = []
-timer_start = {}
+# Note: These were used in the old in-memory version but are no longer needed
+# All state is now managed through file persistence
 
 @app.route('/')
 def index():
@@ -71,6 +68,10 @@ def index():
 def assign_team():
     data = request.json
     team_name = data.get('team')
+    
+    # Input validation
+    if not team_name or not isinstance(team_name, str) or len(team_name) > 50:
+        return jsonify({'success': False, 'error': 'Invalid team name'})
     
     def do_assign(state):
         stations = state['stations']
@@ -110,7 +111,14 @@ def remove_team():
     data = request.json
     team_name = data.get('team')
     
+    # Input validation
+    if not team_name or not isinstance(team_name, str):
+        return jsonify({'success': False, 'error': 'Invalid team name'})
+    
+    success = False
+    
     def do_remove(state):
+        nonlocal success
         stations = state['stations']
         timer_start = state['timer_start']
         team_queue = state['team_queue']
@@ -121,17 +129,15 @@ def remove_team():
                 stations[station] = None
                 timer_start.pop(station, None)
                 assign_next_team_internal(state)
-                return True
+                success = True
+                return
         
         # If team is in queue, remove from queue
         if team_name in team_queue:
             team_queue.remove(team_name)
-            return True
-        
-        return False
+            success = True
     
-    success = False
-    state = update_state(lambda s: do_remove(s) or True)
+    state = update_state(do_remove)
     
     # Emit update to all connected clients
     socketio.emit('update_assignments', {
@@ -140,12 +146,18 @@ def remove_team():
         'team_queue': state['team_queue']
     }, namespace='/')
     
-    return jsonify({'success': True})
+    return jsonify({'success': success})
 
 @app.route('/toggle_active', methods=['POST'])
 def toggle_active():
     data = request.json
-    station = str(data.get('station'))
+    station = data.get('station')
+    
+    # Input validation
+    if not isinstance(station, int) or station < 1 or station > 12:
+        return jsonify({'success': False, 'error': 'Invalid station number'})
+    
+    station = str(station)
     
     def do_toggle(state):
         stations = state['stations']
@@ -234,4 +246,6 @@ def assign_next_team():
     }, namespace='/')
 
 if __name__ == '__main__':
+    # Note: allow_unsafe_werkzeug is only for development/testing
+    # Do not use in production - use a proper WSGI server like gunicorn
     socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
