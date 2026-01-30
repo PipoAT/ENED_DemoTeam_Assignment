@@ -3,11 +3,37 @@
 <head>
     <title>Team Station Assignments</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" onerror="console.log('Socket.IO CDN failed, using polling fallback')"></script>
     <script>
+        let socket;
+        let pollingInterval;
+
+        // Try to initialize Socket.IO
+        try {
+            if (typeof io !== 'undefined') {
+                socket = io();
+                // Listen for real-time updates from the server
+                socket.on('update_assignments', function(data) {
+                    updateDisplay(data);
+                });
+                console.log('WebSocket connection established');
+            } else {
+                throw new Error('Socket.IO not available');
+            }
+        } catch (e) {
+            console.log('WebSocket not available, using polling fallback');
+            // Fall back to polling every 2 seconds
+            pollingInterval = setInterval(fetchAssignments, 2000);
+        }
+
+        // Initial fetch on page load
         async function fetchAssignments() {
             let response = await fetch('/get_assignments');
             let result = await response.json();
+            updateDisplay(result);
+        }
 
+        function updateDisplay(result) {
             // Update station assignments
             let stationsList = document.getElementById('stations-list');
             stationsList.innerHTML = '';  // Clear current list
@@ -38,15 +64,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({team: team})
             });
-
-            // Now trigger a refresh on index.html or reload the data here
-            fetchAssignments(); // Fetch updated data in station.html itself
-
-            // Notify index.html to update
-            localStorage.setItem('refreshIndex', Date.now());
         }
-
-        setInterval(fetchAssignments, 1000);  // Poll for updates every 5 seconds
 
         // Initial fetch when the page loads
         window.onload = fetchAssignments;
@@ -54,6 +72,7 @@
 </head>
 <body class="bg-light">
     <div class="container py-5">
+        <h4>Station view - Updates happen automatically in real-time!</h4>
         <div class="row">
             <div class="col-md-6">
                 <h1 class="mb-4">Current Station Assignments</h1>
